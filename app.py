@@ -58,7 +58,7 @@ if st.button("Predict Credit Risk"):
     )
 
     # --------------------
-    # 🔥 Critical Fix: Column Order
+    # Critical Fix: Column Order
     # --------------------
     input_data = input_data[model.feature_names_in_]
 
