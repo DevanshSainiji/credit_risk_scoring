@@ -2,33 +2,39 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# Load model
-model = joblib.load("models/Decision_Tree.pkl")
+# Load model and scaler
+model = joblib.load("models/logistic_regression.pkl")
+scaler = joblib.load("models/scaler.pkl")
 
 st.title("Credit Risk Scoring App")
 st.write("Enter borrower details:")
 
 # --------------------
-# User Inputs
+# User Inputs (Wrapped in Form for better UI experience)
 # --------------------
-rev_util = st.number_input("Revolving Utilization", min_value=0.0, max_value=2.0, value=0.5)
-age = st.number_input("Age", min_value=18, max_value=100, value=30)
+with st.form("credit_risk_form"):
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        rev_util = st.number_input("Revolving Utilization", min_value=0.0, max_value=2.0, value=0.5)
+        late_30_59 = st.number_input("Late 30-59 Days", min_value=0, value=0)
+        late_90 = st.number_input("Late 90+ Days", min_value=0, value=0)
+        monthly_inc = st.number_input("Monthly Income", min_value=0.0, value=5000.0)
+        real_estate = st.number_input("Real Estate Loans", min_value=0, value=1)
 
-late_30_59 = st.number_input("Late 30-59 Days", min_value=0, value=0)
-late_60_89 = st.number_input("Late 60-89 Days", min_value=0, value=0)
-late_90 = st.number_input("Late 90+ Days", min_value=0, value=0)
-
-debt_ratio = st.number_input("Debt Ratio", min_value=0.0, max_value=5.0, value=0.3)
-monthly_inc = st.number_input("Monthly Income", min_value=0.0, value=5000.0)
-
-open_credit = st.number_input("Open Credit Lines", min_value=0, value=5)
-real_estate = st.number_input("Real Estate Loans", min_value=0, value=1)
-dependents = st.number_input("Dependents", min_value=0, value=0)
+    with col2:
+        age = st.number_input("Age", min_value=18, max_value=100, value=30)
+        late_60_89 = st.number_input("Late 60-89 Days", min_value=0, value=0)
+        debt_ratio = st.number_input("Debt Ratio", min_value=0.0, max_value=5.0, value=0.3)
+        open_credit = st.number_input("Open Credit Lines", min_value=0, value=5)
+        dependents = st.number_input("Dependents", min_value=0, value=0)
+    
+    submit_button = st.form_submit_button("Predict Credit Risk")
 
 # --------------------
-# Predict Button
+# Predict Logic
 # --------------------
-if st.button("Predict Credit Risk"):
+if submit_button:
 
     input_data = pd.DataFrame([{
         "rev_util": rev_util,
@@ -58,15 +64,23 @@ if st.button("Predict Credit Risk"):
     )
 
     # --------------------
-    # Critical Fix: Column Order
+    # Critical Fix: Column Order (Hardcoded for models without feature_names_in_)
     # --------------------
-    input_data = input_data[model.feature_names_in_]
+    cols = ['rev_util', 'age', 'late_30_59', 'debt_ratio', 'monthly_inc', 
+            'open_credit', 'late_90', 'real_estate', 'late_60_89', 
+            'dependents', 'total_late', 'financial_stress']
+    input_data = input_data[cols]
+
+    # --------------------
+    # Scaling (Loaded dynamically from scaler.pkl)
+    # --------------------
+    input_data_scaled = scaler.transform(input_data)
 
     # --------------------
     # Prediction
     # --------------------
-    prediction = model.predict(input_data)[0]
-    probability = model.predict_proba(input_data)[0][1]
+    prediction = model.predict(input_data_scaled)[0]
+    probability = model.predict_proba(input_data_scaled)[0][1]
 
     st.subheader("Prediction Result")
 
