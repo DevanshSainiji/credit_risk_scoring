@@ -5,3 +5,13 @@ scikit-learn
 numpy
 matplotlib
 seaborn
+langchain
+langchain-groq
+langgraph
+langchain-core
+langchain-community
+langchain-huggingface
+sentence-transformers
+faiss-cpu
+fpdf2
+python-dotenv
