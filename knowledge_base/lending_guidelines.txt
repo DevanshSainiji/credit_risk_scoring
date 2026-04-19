@@ -1,0 +1,11 @@
+RBI Responsible Lending Guidelines & Financial Ethics
+1. Fair Practice Code: Lenders must promote transparency, fairness, and sympathetic consideration for borrowers in genuine financial distress.
+2. Debt-to-Income Limits: Borrowers with a debt ratio above 1.5 indicate severe financial stress. Further credit should be extended with extreme caution and heavily mitigated.
+3. Repayment History: Recent delinquencies (late payments within 30-90 days) significantly elevate default risk. Over 3 late payments in a year generally disqualifies unsecured lending without manual review.
+4. Age Discrimination: Refusal of credit solely based on age is unethical. However, lenders must ensure sufficient income streams for borrowers over retirement age.
+5. Overleveraging: High revolving utilization (over 0.8) indicates potential dependency on credit. Borrowers displaying utilization above 1.0 are severely overleveraged and generally unsuitable for immediate new credit lines without a recovery plan.
+6. Data Privacy and Algorithmic Bias: Automated decisions must be explainable. A loan cannot be rejected merely because an algorithm outputs 'high risk'—a structured reason based on financial metrics must be provided, avoiding arbitrary biases based on demographics.
+7. Real Estate and Secured Lending: The presence of real estate loans indicates stability but must be balanced against liquid monthly income.
+8. Missing Data: Handling missing fields gracefully is crucial. An application should not be automatically rejected for a single missing field unless it is legally required. Reasonable inferences and manual reviews should be recommended.
+9. Extreme Recommendations: Lenders should avoid extreme recommendations without justification. Provide balanced options such as "Further Review Required" instead of outright rejection if confidence is low.
+10. Low Confidence: If confidence in the Machine Learning model is low (e.g. probability near the threshold), human review MUST be mandated before adverse action.

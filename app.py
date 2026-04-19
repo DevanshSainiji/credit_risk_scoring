@@ -1,13 +1,36 @@
 import streamlit as st
 import joblib
 import pandas as pd
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from src.agent import run_agent
+from src.rag import setup_vector_db
+from src.pdf_export import generate_pdf_report
+
+# Setup the RAG Vector DB on startup
+# This handles reading knowledge_base and preparing local FAISS index
+try:
+    setup_vector_db()
+except Exception as e:
+    st.error(f"Error initializing vector database: {e}")
 
 # Load model and scaler
 model = joblib.load("models/logistic_regression.pkl")
 scaler = joblib.load("models/scaler.pkl")
 
-st.title("Credit Risk Scoring App")
-st.write("Enter borrower details:")
+st.title("Credit Risk Scoring & Agentic Lending Assistant")
+st.write("Intelligent credit risk assessment powered by Machine Learning and Agentic RAG.")
+
+# API Key input in sidebar for public deployment
+st.sidebar.header("Configuration")
+api_key = st.sidebar.text_input("Enter Groq API Key (required for Agent)", type="password")
+if api_key:
+    os.environ["GROQ_API_KEY"] = api_key
+else:
+    st.sidebar.warning("Please enter your Groq API Key to enable the Agent Assistant.")
 
 # --------------------
 # User Inputs (Wrapped in Form for better UI experience)
@@ -82,38 +105,30 @@ if submit_button:
     prediction = model.predict(input_data_scaled)[0]
     probability = model.predict_proba(input_data_scaled)[0][1]
 
-    st.subheader("Prediction Result")
-
+    st.header("2. ML Model Output")
     col1, col2 = st.columns(2)
-
     with col1:
-        st.metric(
-            label="Default Prediction",
-            value="Probably a Defaulter" if prediction == 1 else "Not a Defaulter"
-        )
-
+        st.metric(label="Default Prediction", value="Probably a Defaulter" if prediction == 1 else "Not a Defaulter")
     with col2:
-        st.metric(
-            label="Probability of Default",
-            value=f"{probability:.2%}"
-        )
+        st.metric(label="Probability of Default", value=f"{probability:.2%}")
 
-    st.write("---")
-
-    # Risk categorization
-    if probability < 0.20:
-        risk_label = "Low Risk Borrower"
-        risk_msg = "Borrower shows strong repayment profile."
-        st.success(risk_label)
-
-    elif probability < 0.60:
-        risk_label = "Medium Risk Borrower"
-        risk_msg = "Borrower exhibits moderate credit risk."
-        st.warning(risk_label)
-
+    if risk_label == "Low Risk":
+        st.success(f"{risk_label} - Borrower shows strong repayment profile.")
+    elif risk_label == "Medium Risk":
+        st.warning(f"{risk_label} - Borrower exhibits moderate credit risk.")
     else:
-        risk_label = "High Risk Borrower"
-        risk_msg = "Borrower has elevated probability of default."
-        st.error(risk_label)
+        st.error(f"{risk_label} - Borrower has elevated probability of default.")
 
-    st.caption(risk_msg)
+    st.divider()
+
+if "agent_report" in st.session_state and "pdf_bytes" in st.session_state:
+    st.header("3. Agentic Lending Decision")
+    st.markdown(st.session_state["agent_report"])
+    
+    st.divider()
+    st.download_button(
+        label="📄 Download Report as PDF",
+        data=st.session_state["pdf_bytes"],
+        file_name="Lending_Decision_Report.pdf",
+        mime="application/pdf"
+    )
