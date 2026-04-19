@@ -105,6 +105,13 @@ if submit_button:
     prediction = model.predict(input_data_scaled)[0]
     probability = model.predict_proba(input_data_scaled)[0][1]
 
+    if probability < 0.3:
+        risk_label = "Low Risk"
+    elif probability < 0.6:
+        risk_label = "Medium Risk"
+    else:
+        risk_label = "High Risk"
+
     st.header("2. ML Model Output")
     col1, col2 = st.columns(2)
     with col1:
