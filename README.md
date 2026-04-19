@@ -1,124 +1,81 @@
-# AI-Driven Credit Risk Analytics System
+# Intelligent Credit Risk Assessment & Agentic Lending System
 
-## 1. Problem Statement
+An end-to-end AI-driven credit risk analytics system that combines Machine Learning (Decision Trees) with **Agentic AI** and **Retrieval-Augmented Generation (RAG)** to provide explainable lending recommendations.
 
-Financial institutions must evaluate borrower creditworthiness accurately to reduce loan default risk while ensuring fair lending decisions. Traditional credit assessment processes are often manual, time-consuming, and subjective.
+## 1. Project Overview
+Traditional credit scoring models often operate as "black boxes." This project evolves the standard ML pipeline into an **Agentic Lending Assistant** that:
+1. Predicts the probability of default using a **Decision Tree** model.
+2. Retrieves relevant ethical lending guidelines from a local knowledge base using **FAISS**.
+3. Generates a structured, human-readable lending report using a **Large Language Model (Llama 3.1)** via LangGraph.
+4. Exports the final decision as a professional **PDF report**.
 
-The objective of this project is to design and implement a machine learning–based credit risk scoring system that predicts whether a borrower is likely to default on a loan using historical borrower and loan data. The system provides clear and interpretable predictions through a simple web-based user interface.
+## 2. Key Features
+- **Machine Learning**: Decision Tree classifier achieving **94.1% accuracy**.
+- **AI Agent**: LangGraph-powered reasoning agent for policy-grounded decisions.
+- **RAG Integration**: FAISS vector store with HuggingFace embeddings for guideline retrieval.
+- **Interactive UI**: Built with Streamlit for real-time risk assessment.
+- **Explainability**: Automated generation of justifications based on retrieved guidelines.
+- **PDF Generation**: Instant download of the full assessment report.
 
----
+## 3. Technology Stack
+- **Frontend**: Streamlit
+- **ML Models**: Scikit-learn (Decision Tree, Logistic Regression)
+- **Agentic Framework**: LangGraph, LangChain
+- **LLM**: Llama 3.1 (via Groq Cloud)
+- **Vector DB**: FAISS
+- **Embeddings**: Sentence-Transformers (all-MiniLM-L6-v2)
+- **PDF Export**: FPDF2
 
-## 2. Dataset Description
-
-- **Dataset Name:** Credit Risk Benchmark Dataset  
-- **Source:** Kaggle  
-- **Format:** CSV  
-
-The dataset contains historical information related to borrowers and loans, which is used to predict credit default risk.
-
-### Example Features
-- Borrower income  
-- Employment status  
-- Loan amount  
-- Loan tenure  
-- Credit history length  
-- Past defaults  
-
-### Target Variable
-- **default**
-  - `0` → No Default (Low Risk)
-  - `1` → Default (High Risk)
-
-Dataset location:
+## 4. Project Structure
 ```
-data/raw/Credit Risk Benchmark Dataset.csv
-```
-
----
-
-## 3. Machine Learning Pipeline
-
-```
-Raw Data
-  ↓
-Data Preprocessing
-  ↓
-Feature Engineering
-  ↓
-Model Training
-  ↓
-Model Evaluation
-  ↓
-Model Deployment (UI)
+credit_risk_scoring/
+│
+├── data/
+│   ├── raw/                  # Original dataset (Kaggle)
+│   ├── processed/            # Cleaned data with engineered features
+│   └── vectorstore/          # FAISS index for RAG
+├── src/
+│   ├── agent.py              # LangGraph agent definition
+│   ├── rag.py                # FAISS retrieval logic
+│   ├── pdf_export.py         # PDF generation utility
+│   └── ...                   # Preprocessing & Training scripts
+├── models/                   # Serialized ML models (.pkl)
+├── knowledge_base/           # Ethical lending guidelines (Text)
+├── notebooks/                # Exploratory Data Analysis & experiments
+├── app.py                    # Main Streamlit application
+├── report.tex                # Professional 1-page project report
+└── requirements.txt          # Python dependencies
 ```
 
-### Preprocessing Steps
-- Missing value handling  
-- Categorical encoding  
-- Feature scaling  
+## 5. Getting Started
 
-### Model Used
-- **Logistic Regression**
+### Prerequisites
+- Python 3.8+
+- Groq API Key (for Agent functionality)
 
----
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/DevanshSainiji/credit_risk_scoring.git
+   cd credit_risk_scoring
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## 4. Model Evaluation
-
-The model is evaluated using:
-- Accuracy  
-- Precision  
-- Recall  
-- ROC-AUC Score  
-
-These metrics help assess model reliability and risk prediction performance.
-
----
-
-## 5. How to Run the Project
-
-### Step 1: Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### Step 2: Run preprocessing
-```bash
-python src/preprocessing.py
-```
-
-### Step 3: Train the model
-```bash
-python src/train_model.py
-```
-
-### Step 4: Run the UI
+### Running the App
+Launch the Streamlit interface:
 ```bash
 streamlit run app.py
 ```
+*Note: Enter your Groq API Key in the sidebar to enable the Agent Assistant.*
 
----
+## 6. Team Members
+- **Shivansh Bhargava**
+- **Devansh Saini**
+- **Om Gupta**
+- **Sahil Khemnar**
 
-## 6. Project Structure
-
-```
-credit-risk-ai/
-│
-├── data/
-│   ├── raw/Credit Risk Benchmark Dataset.csv
-│   └── processed/
-├── notebooks/
-    ├── data_understanding.ipynb
-    ├── model_training.ipynb
-    └── preprocessingn.ipynb
-├── src/
-├── models/
-├── app.py
-├── requirements.txt
-└── README.md
-```
-
----
-
-## 7. Conclusion
-
-This project automates credit risk prediction using machine learning and provides an end-to-end pipeline from data preprocessing to model deployment with a user interface.
+## 7. License
+This project is developed for educational purposes as part of the Intelligent Systems curriculum.
