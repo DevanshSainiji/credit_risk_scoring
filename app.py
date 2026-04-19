@@ -32,9 +32,7 @@ if api_key:
 else:
     st.sidebar.warning("Please enter your Groq API Key to enable the Agent Assistant.")
 
-# --------------------
 # User Inputs (Wrapped in Form for better UI experience)
-# --------------------
 with st.form("credit_risk_form"):
     col1, col2 = st.columns(2)
     
@@ -52,29 +50,25 @@ with st.form("credit_risk_form"):
         open_credit = st.number_input("Open Credit Lines", min_value=0, value=5)
         dependents = st.number_input("Dependents", min_value=0, value=0)
     
-    submit_button = st.form_submit_button("Predict Credit Risk")
+    submit_button = st.form_submit_button("Predict & Generate Credit Report")
 
-# --------------------
 # Predict Logic
-# --------------------
 if submit_button:
+    if not os.environ.get("GROQ_API_KEY"):
+        st.error("Cannot run Agent without a Groq API Key. Please provide one in the sidebar.")
+        st.stop()
 
-    input_data = pd.DataFrame([{
-        "rev_util": rev_util,
-        "age": age,
-        "late_30_59": late_30_59,
-        "debt_ratio": debt_ratio,
-        "monthly_inc": monthly_inc,
-        "open_credit": open_credit,
-        "late_90": late_90,
-        "real_estate": real_estate,
-        "late_60_89": late_60_89,
-        "dependents": dependents
-    }])
+    borrower_data = {
+        "rev_util": rev_util, "age": age, "late_30_59": late_30_59, "debt_ratio": debt_ratio,
+        "monthly_inc": monthly_inc, "open_credit": open_credit, "late_90": late_90,
+        "real_estate": real_estate, "late_60_89": late_60_89, "dependents": dependents
+    }
+    
+    input_data = pd.DataFrame([borrower_data])
 
-    # --------------------
+
     # Feature Engineering (MUST match training)
-    # --------------------
+
     input_data["total_late"] = (
         input_data["late_30_59"]
         + input_data["late_60_89"]
@@ -86,22 +80,22 @@ if submit_button:
         * input_data["rev_util"]
     )
 
-    # --------------------
+
     # Critical Fix: Column Order (Hardcoded for models without feature_names_in_)
-    # --------------------
+
     cols = ['rev_util', 'age', 'late_30_59', 'debt_ratio', 'monthly_inc', 
             'open_credit', 'late_90', 'real_estate', 'late_60_89', 
             'dependents', 'total_late', 'financial_stress']
     input_data = input_data[cols]
 
-    # --------------------
+
     # Scaling (Loaded dynamically from scaler.pkl)
-    # --------------------
+
     input_data_scaled = scaler.transform(input_data)
 
-    # --------------------
+
     # Prediction
-    # --------------------
+
     prediction = model.predict(input_data_scaled)[0]
     probability = model.predict_proba(input_data_scaled)[0][1]
 
@@ -111,6 +105,31 @@ if submit_button:
         risk_label = "Medium Risk"
     else:
         risk_label = "High Risk"
+
+    # Save to session state to prevent download button reset
+    st.session_state["prediction_data"] = {
+        "prediction": prediction,
+        "probability": probability,
+        "risk_label": risk_label
+    }
+
+
+    # Agentic Reasoner
+
+    with st.spinner("Agent is retrieving guidelines and generating report..."):
+        try:
+            report = run_agent(borrower_data, risk_label, probability)
+            st.session_state["agent_report"] = report
+            st.session_state["pdf_bytes"] = generate_pdf_report(report)
+        except Exception as e:
+            st.error(f"Error during agent execution: {e}")
+
+# Render Results from Session State
+if "prediction_data" in st.session_state:
+    pred_data = st.session_state["prediction_data"]
+    prediction = pred_data["prediction"]
+    probability = pred_data["probability"]
+    risk_label = pred_data["risk_label"]
 
     st.header("2. ML Model Output")
     col1, col2 = st.columns(2)
